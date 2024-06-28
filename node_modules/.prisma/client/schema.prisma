@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model patient {
+  patient_id         Int       @id @default(autoincrement())
+  id_card            String?   @db.VarChar(50)
+  first_name         String?   @db.VarChar(50)
+  last_name          String?   @db.VarChar(50)
+  age                Int?
+  gender             String?   @db.VarChar(45)
+  weight             Float?    @db.Float
+  height             Float?    @db.Float
+  disease            String?   @db.VarChar(100)
+  id_home            String?   @db.TinyText
+  village_name       String?   @db.VarChar(45)
+  village_number     String?   @db.TinyText
+  tel                String?   @db.Text
+  email              String?   @db.VarChar(45)
+  created_at         DateTime? @db.DateTime(0)
+  updated_at         DateTime? @db.DateTime(0)
+  tamboms_tamboms_id Int?
+  foot               foot[]
+  tamboms            tambom?   @relation(fields: [tamboms_tamboms_id], references: [tamboms_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_patient_tamboms1")
+
+  @@index([tamboms_tamboms_id], map: "fk_patient_tamboms1_idx")
+}
+
+model amphure {
+  amphures_id            Int      @id @default(autoincrement())
+  amphures               String?  @db.VarChar(45)
+  provinces_provinces_id Int
+  province               province @relation(fields: [provinces_provinces_id], references: [provinces_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_amphures_provinces1")
+  tambom                 tambom[]
+
+  @@index([provinces_provinces_id], map: "fk_amphures_provinces1_idx")
+}
+
+model province {
+  provinces_id Int       @id @default(autoincrement())
+  provinces    String?   @db.VarChar(100)
+  amphure      amphure[]
+}
+
+model tambom {
+  tamboms_id           Int       @id @default(autoincrement())
+  tamboms              String?   @db.VarChar(45)
+  amphures_amphures_id Int
+  patient              patient[]
+  amphure              amphure   @relation(fields: [amphures_amphures_id], references: [amphures_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_tamboms_amphures1")
+
+  @@index([amphures_amphures_id], map: "fk_tamboms_amphures1_idx")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model foot {
+  sensor_foot_id     Int       @id @default(autoincrement())
+  sensor_LR          Int?
+  sensors_left       String?   @db.Text
+  sensor_right       String?   @db.Text
+  created_at         DateTime? @db.DateTime(0)
+  updated_at         DateTime? @db.DateTime(0)
+  patient_patient_id Int
+  patient            patient   @relation(fields: [patient_patient_id], references: [patient_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_left_foot_patient1")
+
+  @@index([patient_patient_id], map: "fk_left_foot_patient1_idx")
+}
